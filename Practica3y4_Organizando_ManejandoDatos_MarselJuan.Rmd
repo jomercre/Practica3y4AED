@@ -334,7 +334,8 @@ load("./data/VuelosNY.Rdata")
 Muestra las primeras muestras de ambos data frames para hacerte una idea de las variables que contienen. ¿Qué diferencia existe entre la información mostrada en ambos data frames?
 
 ```{r }
-
+head(flights)
+head(planes)
 ```
 
 ### Ejercicio 6
@@ -344,9 +345,7 @@ En nuestro estudio queremos aplicar una serie de criterios de exclusión sobre l
 * Nota: Revisar el uso de la función filter vista en clase y tener en cuenta los operadores de comparación: igual ==, distinto !=, mayor >, mayor o igual >=, menor <, menor o igual <=.
 
 ```{r }
-
-
-
+planes.f <- planes %>% filter(!grepl('DOUGLAS',manufacturer)) %>% filter(seats >= 90 & seats <= 210) %>% mutate(manufacturer = ifelse(str_detect(manufacturer, 'AIRBUS'),'AIRBUS COMP', manufacturer))
 ```
 
 
@@ -355,8 +354,7 @@ En nuestro estudio queremos aplicar una serie de criterios de exclusión sobre l
 Crea un data frame denominado `flights.f` que contenga los vuelos que involucren a los aviones presentes en el data frame `planes.f`. Para ello utiliza algunas de las funciones de **XXX_join** y la variable `tailnum` que es común en ambos data frames. 
 
 ```{r }
-
-
+flights.f <- planes.f %>% left_join(flights %>% select(tailnum),by = 'tailnum')
 ```
 
 ### Ejercicio 8
