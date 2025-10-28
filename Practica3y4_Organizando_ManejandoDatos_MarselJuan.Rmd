@@ -264,8 +264,7 @@ rm(list=ls())
 
 load('data/tb.Rdata')
 
-tb_clean <- raw %>% gather(key=col_aux,value='casos',m014:fu) %>% separate(col = 'col_aux', into = c('sexo','edad'), sep=1)
-
+tb_clean <- raw %>% gather(key=col_aux,value='casos',m014:fu) %>% separate(col = 'col_aux', into = c('sexo','edad'), sep=1) %>% mutate(sexo = as.factor(sexo),edad = as.factor(edad))
 ```
 
 ## Variables almacenadas tanto en filas como en columnas
