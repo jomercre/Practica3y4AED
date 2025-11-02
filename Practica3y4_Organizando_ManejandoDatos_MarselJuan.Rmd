@@ -322,7 +322,6 @@ En clase de teoría te han explicado cómo utilizar estas funciones y ya has tra
 Vamos a cargar el conjunto de datos ``VuelosNY.Rdata`` que contiene dos data frames: `flights` y `planes`. 
 
 ```{r, include=FALSE}
-
 library(dplyr)
 #library(dbplyr)
 rm(list=ls())
@@ -470,7 +469,31 @@ Consigue un data frame denominado `Distance_Manufacturer_model` que contenga 4 c
 
 ```{r }
 
+library(dplyr)
+#library(dbplyr)
+rm(list=ls())
+load("./data/VuelosNY.Rdata")
+
+planes.f <- planes %>% filter(!grepl('DOUGLAS',manufacturer)) %>% filter(seats >= 90 & seats <= 210) %>% mutate(manufacturer = ifelse(str_detect(manufacturer, 'AIRBUS'),'AIRBUS COMP', manufacturer))
+flights.f <- flights %>% inner_join(planes.f %>% select(tailnum),by = 'tailnum')
+
+planes <- planes.f
+flights <- flights.f
+
+flights <- flights %>% select(-time_hour,-ends_with('time'))
+planes <- planes %>% select(-speed,-type)
+
+flights <- flights %>% mutate(Full_Date = paste(day,month,year,sep='-')) %>% select(-year,-month,-day)
+
+Distances_plane <- flights %>% group_by(tailnum) %>% 
+  summarise(Num_flights = n(), Mean_distance = mean(distance), 
+            Total_distance = sum(distance)) %>% drop_na(tailnum)
 ```
+
+```{r}
+Distance_Manufacturer_model <- Distances_plane %>% full_join(planes, by='tailnum') %>%  select(c('tailnum','Total_distance','manufacturer','model')) %>% arrange(-Total_distance)
+```
+
 
 ### Ejercicio Extra 4
 
