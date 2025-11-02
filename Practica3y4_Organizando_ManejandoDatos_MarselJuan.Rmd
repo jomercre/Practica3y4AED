@@ -394,8 +394,7 @@ Utilizando las funciones `group_by`, `summarise` y `filter`, crea un data frame 
 ```{r }
 Distances_plane <- flights %>% group_by(tailnum) %>% 
   summarise(Num_flights = n(), Mean_distance = mean(distance), 
-            Total_distance = sum(distance)) %>% 
-  df_group %>% drop_na(tailnum)
+            Total_distance = sum(distance)) %>% drop_na(tailnum)
 ```
 
 # Ejercicios Extra
@@ -412,10 +411,22 @@ Separa los datos _tidy_ que teníamos en el ejercicio 2 en dos tablas (data fram
 Opcionalmente se puede crear un identificador, `id`, asociado al nombre de la canción (`track`), y en la tabla de ranking solo usaremos este identificador en lugar del nombre de la canción.
 
 ```{r}
+rm(list=ls())
 
+load('data/billboard.Rdata')
 
+df <- raw %>% pivot_longer(cols=wk1:wk76, names_to = 'week', values_to = 'rank', names_prefix = 'wk') %>% mutate(date = as.Date(date.entered)+weeks(as.numeric(week)-1))
 
+uniq_tracks <- unique(df$track)
+id <- 1:length(uniq_tracks)
+
+df$id <- as.numeric(factor(df$track,levels=uniq_tracks,labels=id))
+
+new_df <- data.frame(id = id,tracks = uniq_tracks)
+
+df <- df %>% select(-track)
 ```
+
 
 ## TidyR. Una única unidad de observación almacenada en varias tablas
 
@@ -434,8 +445,20 @@ Esto se puede hacer fácilmente con las librerías `plyr` y `dplyr`.
 En la librería _tidyr_ hay varios conjuntos de datos. **table1** es un conjunto _tidy_ pero **table5** no lo es. Realiza las operaciones necesarias para obtener **table1** a partir de **table5**. También deben coincidir los tipos de datos de las columnas. 
 
 ```{r}
+library(tidyr)
 
+t1 <- table1
+t5 <- table5
+```
 
+Primero unimos las columnas century y year en una sola.
+```{r}
+t5t <- t5 %>% mutate(year=paste0(century,year)) %>% select(-century) %>%
+  separate(rate, into=c('cases','population'), sep='[/]') %>% 
+  mutate(year=as.numeric(year), cases=as.numeric(cases), 
+         population=as.numeric(population))
+
+sum(t5t == t1)
 ```
 
 ## DPLYR
@@ -500,8 +523,6 @@ library(ggplot2)
 ```
 
 ¿Cuál de las dos representaciones anteriores es más adecuada para visualizar los retrasos?
-
-
 
 
 
